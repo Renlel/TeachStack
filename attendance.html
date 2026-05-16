@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>TeachStack - Attendance</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/png" href="Pixel-Art-Apple-5.png">
+</head>
+<body>
+  <aside class="sidebar">
+    <div>
+      <div class="logo"><img src="TeachStack.svg" alt=""></div>
+      <a href="dashboard.html" class="nav-item">
+        <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg> Dashboard
+      </a>
+      <div class="nav-item active">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg> All Section
+      </div>
+      <div class="sub-nav" id="sidebarSubNav">
+      </div>
+    </div>
+    <button class="btn-logout" onclick="logout()"><svg viewBox="0 0 24 24" width="20"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg> Log Out</button>
+  </aside>
+
+  <main class="main-content fade-in">
+    <div class="top-header">
+      <a href="dashboard.html" class="back-link">&larr; Dashboard</a>
+      <h1 class="page-title ui-sec-name">SECTION NAME</h1>
+      <h2 class="page-subtitle ui-sub-code">SUBJECT CODE: SUBJECT NAME</h2>
+      <div class="enrollment-count"><svg viewBox="0 0 24 24" width="20" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> <span class="ui-enroll-count">0 Student Enrolled</span></div>
+      
+      <div class="tabs">
+        <a href="masterlist.html" class="tab">Masterlist</a>
+        <a href="attendance.html" class="tab active">Attendance</a>
+        <a href="gradebook.html" class="tab">Gradebook</a>
+        <a href="analytics.html" class="tab">Class Analytics</a>
+      </div>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+      <div>
+        <h3 style="color: var(--green); font-size: 24px; font-weight: 800;"><span class="ui-sec-name"></span> Attendance</h3>
+        <div style="display:flex; gap:10px; font-size:12px; align-items:center; margin-top:5px;">
+          <span class="status present" style="min-width:auto; padding:2px 10px;">PRESENT</span>
+          <span class="status late" style="min-width:auto; padding:2px 10px;">LATE</span>
+          <span class="status absent" style="min-width:auto; padding:2px 10px;">ABSENT</span>
+          <span style="color:var(--text-gray)">Click a cell to cycle status</span>
+        </div>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <input type="date" id="datePicker" style="padding: 5px 10px; border:1px solid var(--orange); border-radius:15px; color:var(--orange); font-weight:bold; outline:none;">
+        <button class="btn-primary" onclick="addDate()">+ ADD DATE</button>
+      </div>
+    </div>
+
+    <div class="table-wrapper">
+      <table id="attTable">
+        <thead>
+          <tr id="attHeader">
+            </tr>
+        </thead>
+        <tbody id="attBody">
+            </tbody>
+      </table>
+    </div>
+  </main>
+
+  <script src="store.js"></script>
+  <script>
+    const section = getCurrentSection();
+
+    // ==========================================
+    // 1. SELF-HEALING DATA PROTOCOL
+    // This fixes corrupted data from older versions
+    // so the page never crashes on load.
+    // ==========================================
+    if (!section.students) section.students = [];
+    if (!section.attendance) section.attendance = {};
+    if (!Array.isArray(section.attendance.dates)) section.attendance.dates = [];
+    if (!section.attendance.records) section.attendance.records = {};
+    saveData();
+
+    // 2. Safe Date Formatter
+    function formatD(ds) {
+        try {
+            const [y, m, d] = ds.split('-'); 
+            const dateObj = new Date(y, m - 1, d); 
+            const month = dateObj.toLocaleString('default', { month: 'short' }).toUpperCase();
+            const day = String(dateObj.getDate()).padStart(2, '0');
+            const weekday = dateObj.toLocaleString('default', { weekday: 'short' }).toUpperCase();
+            return `${month} ${day}<br><span style="color:var(--green);font-size:12px;">${weekday}</span>`;
+        } catch (e) {
+            return ds; // Fallback if format fails
+        }
+    }
+
+    // 3. Render the Table
+    function renderAttendance() {
+        updateHeaderUI();
+        
+        // Build Header
+        const thead = document.getElementById('attHeader');
+        let theadHTML = `<th class="sticky-col-left th-green" style="min-width:200px;">STUDENT</th>`;
+        
+        section.attendance.dates.forEach(d => {
+            theadHTML += `<th>${formatD(d)}</th>`;
+        });
+        
+        theadHTML += `<th class="sticky-col-right th-green" style="min-width:100px;">SUMMARY</th>`;
+        thead.innerHTML = theadHTML;
+
+        // Build Body
+        const tbody = document.getElementById('attBody');
+        let tbodyHTML = '';
+        
+        // If there are no students yet, show a friendly message
+        if (section.students.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="${section.attendance.dates.length + 2}" style="text-align:center; padding: 30px; color:var(--text-gray); font-weight:600;">No students enrolled yet. Add them in the Masterlist!</td></tr>`;
+            return;
+        }
+
+        section.students.forEach(s => {
+            // Safely grab names, falling back to "Unknown" if data is missing
+            const lastName = (s.last || s.lastname || "Unknown").toUpperCase();
+            const firstName = (s.first || s.firstname || "Unknown").toUpperCase();
+            const fullName = `${lastName}, ${firstName}`;
+            
+            // Ensure record exists for this student
+            if (!section.attendance.records[fullName]) {
+                section.attendance.records[fullName] = {};
+            }
+            
+            let p = 0, l = 0, a = 0;
+            let rowHTML = `<tr><td class="sticky-col-left">${fullName}</td>`;
+            
+            section.attendance.dates.forEach(d => {
+                const stat = section.attendance.records[fullName][d] || "present";
+                if(stat === "present") p++; 
+                else if(stat === "late") l++; 
+                else a++;
+                
+                rowHTML += `<td><div class="status ${stat}" data-name="${fullName}" data-date="${d}" onclick="cycle(this)">${stat.toUpperCase()}</div></td>`;
+            });
+
+            // Calculate Percentage Safely
+            const total = p + l + a;
+            const pct = total === 0 ? "100%" : Math.round(((p + l) / total) * 100) + "%";
+            
+            rowHTML += `<td class="sticky-col-right">${pct}</td></tr>`;
+            tbodyHTML += rowHTML;
+        });
+        
+        tbody.innerHTML = tbodyHTML;
+    }
+
+    // 4. Handle Status Clicks
+    function cycle(element) {
+        const name = element.getAttribute('data-name');
+        const date = element.getAttribute('data-date');
+        
+        const cycleMap = { "present": "late", "late": "absent", "absent": "present" };
+        const curr = section.attendance.records[name][date] || "present";
+        const next = cycleMap[curr];
+        
+        section.attendance.records[name][date] = next;
+        saveData();
+        renderAttendance(); 
+    }
+
+    // 5. Add Date Logic
+    function addDate() {
+        const d = document.getElementById('datePicker').value;
+        if(!d) return alert("Please select a date first.");
+        if(section.attendance.dates.includes(d)) return alert("Date already added.");
+        
+        section.attendance.dates.push(d);
+        
+        // Add default "present" for all current students
+        section.students.forEach(s => {
+            const lastName = (s.last || s.lastname || "Unknown").toUpperCase();
+            const firstName = (s.first || s.firstname || "Unknown").toUpperCase();
+            const fullName = `${lastName}, ${firstName}`;
+            
+            if (!section.attendance.records[fullName]) {
+                section.attendance.records[fullName] = {};
+            }
+            section.attendance.records[fullName][d] = "present";
+        });
+        
+        saveData();
+        renderAttendance();
+    }
+
+    // 6. Start the App
+    window.onload = function() {
+        try {
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            document.getElementById('datePicker').value = `${yyyy}-${mm}-${dd}`;
+        } catch (e) {
+            console.error("Date setup failed, continuing...", e);
+        }
+        
+        renderAttendance();
+    };
+  </script>
+</body>
+</html>

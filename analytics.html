@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>TeachStack - Analytics</title>
+  <link rel="icon" type="image/png" href="Pixel-Art-Apple-5.png">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+      .analytics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-top: 20px;}
+      .a-card { border: 3px solid var(--green); border-radius: 20px; overflow: hidden; background: white;}
+      .a-card-header { background: var(--green); color: white; padding: 15px; text-align: center; font-size: 20px; font-weight: 800; }
+      .a-card-body { padding: 20px; }
+      
+      .top-student-row { border: 2px solid var(--orange); border-radius: 40px; padding: 10px 20px; display: flex; align-items: center; gap: 15px; margin-bottom: 10px; color: white; background: var(--orange); font-weight: 700;}
+      
+      .stat-box { border: 2px solid var(--green); border-radius: 15px; padding: 20px; text-align: center; margin-bottom: 15px; }
+      .stat-label { background: var(--green); color: white; border-radius: 20px; padding: 5px 15px; display: inline-block; margin-top: -35px; margin-bottom: 15px; font-weight: 700;}
+      .stat-number { font-size: 64px; font-weight: 800; color: var(--orange); line-height: 1;}
+
+      .risk-row { background: #E11D48; color: white; border-radius: 40px; padding: 15px; text-align: left; font-weight: 700; margin-bottom: 10px; display: flex; align-items: center; gap: 15px;}
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div>
+      <div class="logo"><img src="TeachStack.svg" alt=""></div>
+      <a href="dashboard.html" class="nav-item">
+        <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg> Dashboard
+      </a>
+      <div class="nav-item active">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg> All Section
+      </div>
+      <div class="sub-nav" id="sidebarSubNav">
+      </div>
+    </div>
+    <button class="btn-logout" onclick="logout()"><svg viewBox="0 0 24 24" width="20"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg> Log Out</button>
+  </aside>
+
+  <main class="main-content fade-in">
+    <div class="top-header">
+      <a href="dashboard.html" class="back-link">&larr; Dashboard</a>
+      <h1 class="page-title ui-sec-name">SECTION NAME</h1>
+      <h2 class="page-subtitle ui-sub-code">SUBJECT CODE: SUBJECT NAME</h2>
+      <div class="enrollment-count"><svg viewBox="0 0 24 24" width="20" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> <span class="ui-enroll-count">0 Student Enrolled</span></div>
+      
+      <div class="tabs">
+        <a href="masterlist.html" class="tab">Masterlist</a>
+        <a href="attendance.html" class="tab">Attendance</a>
+        <a href="gradebook.html" class="tab">Gradebook</a>
+        <a href="analytics.html" class="tab active">Class Analytics</a>
+      </div>
+    </div>
+    
+    <h3 style="color: var(--green); font-size: 24px; font-weight: 800;"><span class="ui-sec-name"></span> Class Analytics</h3>
+    <p style="color: var(--text-gray); font-size: 14px; margin-bottom: 20px;">Analytics overview in this subject</p>
+
+    <div class="analytics-grid">
+      <div class="a-card">
+          <div class="a-card-header">TOP STUDENTS</div>
+          <div class="a-card-body" id="topList">
+             </div>
+      </div>
+
+      <div class="a-card">
+          <div class="a-card-header">CLASS SUMMARY</div>
+          <div class="a-card-body">
+              <div class="stat-box">
+                  <div class="stat-label">SUBJECT PASSING RATE</div>
+                  <div class="stat-number" id="passRate">0%</div>
+              </div>
+              <div class="stat-box">
+                  <div class="stat-label">ATTENDANCE AVERAGE</div>
+                  <div class="stat-number" id="attAvg">0%</div>
+              </div>
+          </div>
+      </div>
+
+      <div class="a-card">
+          <div class="a-card-header">AT RISK STUDENTS</div>
+          <div class="a-card-body" id="riskList">
+             </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="store.js"></script>
+  <script>
+      const section = getCurrentSection();
+
+      // Background calculation to find a student's final grade without rendering the table
+      function calculateStudentGrade(fullName) {
+          const g = section.grades;
+          if (!g || !g.weights) return null;
+
+          let catTotals = { quiz: {s:0, m:0}, pt: {s:0, m:0}, exam: {s:0, m:0} };
+
+          ['quiz', 'pt', 'exam'].forEach(cat => {
+              for(let i=1; i<=g.cols[cat]; i++) {
+                  let colId = `${cat}-${i}`;
+                  let score = g.records[fullName]?.[colId];
+                  if (score !== undefined && score !== '') {
+                      catTotals[cat].s += parseFloat(score) || 0;
+                      catTotals[cat].m += parseFloat(g.maxScores[colId]) || 100;
+                  }
+              }
+          });
+
+          let totalPct = 0;
+          let hasGrades = false;
+          
+          ['quiz', 'pt', 'exam'].forEach(cat => {
+              if (catTotals[cat].m > 0) {
+                  hasGrades = true;
+                  let catPct = (catTotals[cat].s / catTotals[cat].m) * 100;
+                  totalPct += catPct * (g.weights[cat] / 100);
+              }
+          });
+
+          if (!hasGrades) return null;
+
+          // Convert percentage to PH grade format
+          const gradeTable = [
+              [96.7, 1.00], [93.4, 1.25], [90.1, 1.50],
+              [86.7, 1.75], [83.4, 2.00], [80.1, 2.25],
+              [76.7, 2.50], [73.4, 2.75], [70.0, 3.00],
+              [0,    5.00]
+          ];
+          for (const [min, grade] of gradeTable) { 
+              if (totalPct >= min) return grade; 
+          }
+          return 5.00;
+      }
+
+      function renderAnalytics() {
+          updateHeaderUI();
+          
+          let studentStats = [];
+          let totalAttPct = 0;
+          let studentsWithAtt = 0;
+          let studentsWithGrades = 0;
+          let passedStudents = 0;
+
+          // 1. Process Data
+          section.students.forEach(s => {
+              const fullName = `${s.last.toUpperCase()}, ${s.first.toUpperCase()}`;
+              
+              // Process Grades
+              const gradeNum = calculateStudentGrade(fullName);
+              if (gradeNum !== null) {
+                  studentStats.push({ name: fullName, grade: gradeNum });
+                  studentsWithGrades++;
+                  if (gradeNum <= 3.00) passedStudents++;
+              }
+
+              // Process Attendance
+              if (section.attendance && section.attendance.dates && section.attendance.dates.length > 0) {
+                  let p=0, l=0, a=0;
+                  section.attendance.dates.forEach(d => {
+                      const stat = section.attendance.records[fullName]?.[d] || "present";
+                      if(stat==="present") p++; else if(stat==="late") l++; else a++;
+                  });
+                  const total = p+l+a;
+                  if(total > 0) {
+                      totalAttPct += ((p+l)/total);
+                      studentsWithAtt++;
+                  }
+              }
+          });
+
+          // 2. Sort and filter grades (Lower number is better in PH system: 1.00 is best)
+          studentStats.sort((a, b) => a.grade - b.grade);
+          
+          const topStudents = studentStats.filter(s => s.grade <= 3.00).slice(0, 5); // Top 5 passing
+          const riskStudents = studentStats.filter(s => s.grade > 3.00); // Anyone failing
+
+          // 3. Update the UI
+          
+          // Passing Rate & Attendance
+          document.getElementById('passRate').textContent = studentsWithGrades ? Math.round((passedStudents/studentsWithGrades)*100) + '%' : '0%';
+          document.getElementById('attAvg').textContent = studentsWithAtt ? Math.round((totalAttPct/studentsWithAtt)*100) + '%' : '0%';
+
+          // Top Students UI
+          const topContainer = document.getElementById('topList');
+          if (topStudents.length > 0) {
+              topContainer.innerHTML = topStudents.map((s, idx) => `
+                <div class="top-student-row">
+                  <svg viewBox="0 0 24 24" width="30" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+                  <div>
+                    <div style="font-size:14px; line-height: 1;">${s.name}</div>
+                    <div style="font-size:11px; font-weight:500;">RANK ${idx + 1} - ${s.grade.toFixed(2)}</div>
+                  </div>
+                </div>
+              `).join('');
+          } else {
+              topContainer.innerHTML = `<div style="text-align:center; padding: 20px 0; color:var(--text-gray); font-weight:600;">Not enough grade data.</div>`;
+          }
+
+          // Risk Students UI
+          const riskContainer = document.getElementById('riskList');
+          if (riskStudents.length > 0) {
+              riskContainer.innerHTML = riskStudents.map(s => `
+                <div class="risk-row">
+                  <svg viewBox="0 0 24 24" width="30" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+                  <div>
+                    <div style="font-size:14px; line-height: 1;">${s.name}</div>
+                    <div style="font-size:11px; font-weight:500;">NEED INTERVENTION (${s.grade.toFixed(2)})</div>
+                  </div>
+                </div>
+              `).join('');
+          } else {
+              riskContainer.innerHTML = `
+                <div style="text-align:center; padding: 40px 0;">
+                    <h2 style="color:var(--orange); font-size:32px; font-weight:800; margin-bottom:5px;">CONGRATS!</h2>
+                    <p style="color:var(--text-gray); font-weight:600; line-height:1.2;">THERE ARE NO<br>AT RISK STUDENT!</p>
+                </div>
+              `;
+          }
+      }
+
+      renderAnalytics();
+  </script>
+</body>
+</html>

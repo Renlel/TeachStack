@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TeachStack</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts -->
+    <link rel="icon" type="image/png" href="Pixel-Art-Apple-5.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600;1,700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Navigation -->
+    <header>
+        <div class="nav-container">
+            <div class="logo">
+                <a href="LANDING_PAGE.html"><img src="TeachStack.svg" alt=""></a>
+            </div>
+            <nav>
+                <a href="#about">About</a>
+                <a href="#features">Features</a>
+                <button class="btn btn-primary nav-login-btn" onclick="openModal('login')">Teacher Login</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero fade-in-section">
+        <div class="hero-content">
+            <div class="floating-icons">
+                <div class="icon icon-1">🍎</div>
+                <div class="icon icon-2">📅</div>
+                <div class="icon icon-3">📚</div>
+                <div class="icon icon-4">🔔</div>
+            </div>
+            <h1>New Classroom,<br><em>Fully Automated.</em></h1>
+            <p>The automated classroom hub that calculates grades, tracks attendance, and flags at-risk students instantly. Leave the manual data entry behind and get your weekends back. All in one place, free forever.</p>
+            <div class="hero-buttons">
+                <button class="btn btn-primary" onclick="openModal('signup')">Get Started</button>
+                <button class="btn btn-outline" onclick="openModal('login')">Enter Dashboard &rarr;</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why We Built This Section -->
+    <hr>
+    <section id="about" class="about-section fade-in-section">
+        <div class="container layout-grid">
+            <div class="about-text">
+                <span class="section-label">WHY WE BUILT THIS</span>
+                <h2>Built by <span class="text-green">Students</span>,<br>Designed for <span class="text-orange">Teachers</span>.</h2>
+                <p style="color: #666666;">TeachStack didn't start in a corporate tech hub. It was coded from the ground up as a Web Systems final project with one simple mission: use programming to eliminate manual data entry and give teachers their time back.</p>
+            </div>
+            <div class="about-image placeholder-box">
+                <img src="TeachStack.svg" alt="" class="LogoAbout">
+                <p style="font-size: 20px;">Smarter Classroom Management</p>
+            </div>
+        </div>
+    </section>
+    <hr>
+
+    <!-- Features Section -->
+    <section id="features" class="features-section">
+        <div class="container">
+            <span class="section-label text-center">FEATURES & FUNCTIONS</span>
+            
+            <!-- Feature 1 -->
+            <div class="feature-row fade-in-section">
+                <div class="feature-text">
+                    <h3 class="text-green">The "No-Formula"<br>Gradebook</h3>
+                    <p>Say goodbye to complex spreadsheet formulas and manual data entry. TeachStack instantly calculates running final grades the moment you input scores for quizzes, performance tasks, and major exams.</p>
+                </div>
+                <div class="feature-image placeholder-box pixel-art">
+                    <img src="calc.png" alt="" class="calc_featimg">
+                </div>
+            </div>
+
+            <!-- Feature 2 -->
+            <div class="feature-row reverse fade-in-section">
+                <div class="feature-text">
+                    <h3 class="text-orange">One-Click Attendance<br>Tracking</h3>
+                    <p>With quick-toggle buttons for Present, Late, or Absent, the system logs the data in real-time and automatically calculates cumulative attendance percentages for the entire roster. Never tally a manual attendance sheet at the end of the semester again.</p>
+                </div>
+                <div class="feature-image placeholder-box pixel-art">
+                    <img src="calendar.png" alt="" class="calendar_featimg">
+                </div>
+            </div>
+
+            <!-- Feature 3 -->
+            <div class="feature-row fade-in-section">
+                <div class="feature-text">
+                    <h3 class="text-green">Early Intervention Alerts</h3>
+                    <p>TeachStack's intelligent monitoring actively scans your classroom arrays to identify downward trends. The system automatically flags students with consistently dropping attendance or failing quiz scores, placing them on a prioritized dashboard so you can offer support exactly when it is needed most.</p>
+                </div>
+                <div class="feature-image placeholder-box pixel-art">
+                    <img src="bell.png" alt="" class="bell_featimg">
+                </div>
+            </div>
+        </div>
+    </section>
+    <hr>
+
+    <!-- Quote Section -->
+    <section class="quote-section fade-in-section">
+        <span class="section-label">WHY WE DESERVE 1.00 GRADE FOR ITEC 106</span>
+        <h2>"Technology shouldn't change how you teach. It should give you the time to do it better."</h2>
+        <button class="btn btn-primary" onclick="openModal('signup')">Get Started</button>
+        <p class="subtext">Stack Grades, Not Paperwork.</p>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container footer-content">
+            <div class="footer-logo">
+                <img src="TeachStack.svg" alt="" class="footer_logo">
+                <p style="font-size: 0.7rem; color: #888;">© 2026 TeachStack. All rights reserved.<br>FINAL PROJECT FOR ITEC 106</p>
+            </div>
+            <div class="footer-links">
+                <a href="#about">ABOUT</a>
+                <a href="#features">FEATURES</a>
+                <a href="#" onclick="openModal('signup')">GET STARTED</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Auth Modal (Login / Signup Sliding UI) -->
+    <div id="authModal" class="modal-overlay">
+        <div class="modal-container" id="modalContainer">
+            
+            <!-- Sign Up Form (Left side underneath, moves right) -->
+            <div class="form-container sign-up-container">
+                <form id="signupForm" action="#">
+                    <div class="modal-logo">
+                        <img src="TeachStack.svg" alt="">
+                    </div>
+                    <h2 class="text-green form-title">SIGN UP TO TEACHSTACK</h2>
+                    <fieldset>
+                        <legend class="text-orange">USERNAME</legend>
+                        <input id="signupUsername" type="text" placeholder="Username" autocomplete="username" />
+                    </fieldset>
+                    <fieldset>
+                        <legend class="text-orange">EMAIL</legend>
+                        <input id="signupEmail" type="email" placeholder="@example.com" autocomplete="email" />
+                    </fieldset>
+                    <fieldset>
+                        <legend class="text-orange">PASSWORD</legend>
+                        <input id="signupPassword" type="password" placeholder="must be 8 above characters" autocomplete="new-password" />
+                    </fieldset>
+                    <button class="btn btn-primary form-btn" type="submit">SIGN UP</button>
+                    <p class="auth-message" id="signupMessage"></p>
+                </form>
+            </div>
+
+            <!-- Sign In Form (Left side by default) -->
+            <div class="form-container sign-in-container">
+                <form id="loginForm" action="#">
+                    <div class="modal-logo">
+                        <img src="TeachStack.svg" alt="">
+                    </div>
+                    <h2 class="text-green form-title">SIGN IN TO TEACHSTACK</h2>
+                    <fieldset>
+                        <legend class="text-orange">USERNAME</legend>
+                        <input id="loginUsername" type="text" autocomplete="username" />
+                    </fieldset>
+                    <fieldset>
+                        <legend class="text-orange">PASSWORD</legend>
+                        <input id="loginPassword" type="password" autocomplete="current-password" />
+                    </fieldset>
+                    <a href="#" class="forgot-password text-orange">Forgot your password?</a>
+                    <button class="btn btn-primary form-btn" type="submit">SIGN IN</button>
+                    <p class="auth-message" id="loginMessage"></p>
+                </form>
+            </div>
+
+            <!-- Overlay Container (Slides Left/Right) -->
+            <div class="overlay-container">
+                <div class="overlay">
+                    <!-- Overlay Left (Orange side) -->
+                    <div class="overlay-panel overlay-left">
+                        <h2>JOIN TEACHSTACK<br>TODAY!</h2>
+                        <p>Create an account to start building your digital classroom, managing modules, and tracking student progress.</p>
+                        <p class="small-text">Already have an account?</p>
+                        <button class="btn btn-white ghost" id="signInBtn" style="color: #F47C20;">LOG IN</button>
+                    </div>
+                    <!-- Overlay Right (Green side) -->
+                    <div class="overlay-panel overlay-right">
+                        <!-- Close button inside overlay -->
+                        <span class="close-modal" onclick="closeModal()">&times;</span>
+                        <h2>WELCOME!</h2>
+                        <p>Please enter your credentials to access your dashboard and manage your classes.</p>
+                        <p class="small-text">Doesn't have an account yet?</p>
+                        <button class="btn btn-white ghost text-orange" id="signUpBtn" style="color: #009A55;">SIGN UP</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>TeachStack - Gradebook</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/png" href="Pixel-Art-Apple-5.png">
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div>
+      <div class="logo"><img src="TeachStack.svg" alt=""></div>
+      <a href="dashboard.html" class="nav-item">
+        <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg> Dashboard
+      </a>
+      <div class="nav-item active">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg> All Section
+      </div>
+      <div class="sub-nav" id="sidebarSubNav">
+      </div>
+    </div>
+    <button class="btn-logout" onclick="logout()"><svg viewBox="0 0 24 24" width="20"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg> Log Out</button>
+  </aside>
+
+  <main class="main-content fade-in">
+    <div class="top-header">
+      <a href="dashboard.html" class="back-link">&larr; Dashboard</a>
+      <h1 class="page-title ui-sec-name">SECTION NAME</h1>
+      <h2 class="page-subtitle ui-sub-code">SUBJECT CODE: SUBJECT NAME</h2>
+      <div class="enrollment-count"><svg viewBox="0 0 24 24" width="20" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> <span class="ui-enroll-count">0 Student Enrolled</span></div>
+      
+      <div class="tabs">
+        <a href="masterlist.html" class="tab">Masterlist</a>
+        <a href="attendance.html" class="tab">Attendance</a>
+        <a href="gradebook.html" class="tab active">Gradebook</a>
+        <a href="analytics.html" class="tab">Class Analytics</a>
+      </div>
+    </div>
+
+    <div style="margin-bottom: 15px;">
+      <h3 style="color: var(--green); font-size: 24px; font-weight: 800;"><span class="ui-sec-name"></span> Gradebook</h3>
+      <p style="color: var(--text-gray); font-size: 14px;">Student grades tracker in this subject</p>
+    </div>
+
+    <div class="table-wrapper">
+      <table id="gradebookTable">
+        <thead id="gbHead">
+          </thead>
+        <tbody id="gbBody">
+          </tbody>
+      </table>
+    </div>
+  </main>
+
+  <script src="store.js"></script>
+  <script>
+    const section = getCurrentSection();
+    
+    // Initialize Grades Structure if it doesn't exist
+    if (!section.grades || !section.grades.weights) {
+        section.grades = {
+            weights: { quiz: 10, pt: 50, exam: 40 },
+            cols: { quiz: 2, pt: 3, exam: 2 },
+            maxScores: {
+                'quiz-1': 15, 'quiz-2': 15,
+                'pt-1': 50, 'pt-2': 50, 'pt-3': 50,
+                'exam-1': 50, 'exam-2': 50
+            },
+            records: {}
+        };
+        saveData();
+    }
+
+    // Convert Percentage to PH Grade
+    function toPhGrade(pct) {
+        if (pct === null || isNaN(pct)) return "-";
+        const gradeTable = [
+            [96.7, 1.00], [93.4, 1.25], [90.1, 1.50],
+            [86.7, 1.75], [83.4, 2.00], [80.1, 2.25],
+            [76.7, 2.50], [73.4, 2.75], [70.0, 3.00],
+            [0,    5.00]
+        ];
+        for (const [min, grade] of gradeTable) { 
+            if (pct >= min) return grade.toFixed(2); 
+        }
+        return "5.00";
+    }
+
+    // Render the Headers (Quizzes, PTs, Exams dynamically based on counts)
+    function renderGradebook() {
+        updateHeaderUI();
+        const thead = document.getElementById('gbHead');
+        const g = section.grades;
+
+        // Row 1: Groupings & Weights
+        let r1 = `<tr>
+            <th rowspan="2" class="sticky-col-left th-green" style="min-width:200px;">STUDENT</th>
+            <th colspan="${g.cols.quiz}" class="th-quiz">
+              QUIZZES 
+              <span style="background:white; border-radius:10px; padding:2px 5px; font-size:11px; margin:0 5px;"><input type="number" class="table-input" style="width:30px; padding:0; height:15px; font-size:11px;" value="${g.weights.quiz}" onchange="updateWeight('quiz', this.value)">%</span> 
+              <button style="background:white; border:none; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:700; cursor:pointer;" onclick="addCol('quiz')">+add</button>
+            </th>
+            <th colspan="${g.cols.pt}" class="th-pt">
+              PERFORMANCE TASKS 
+              <span style="background:white; border-radius:10px; padding:2px 5px; font-size:11px; margin:0 5px;"><input type="number" class="table-input" style="width:30px; padding:0; height:15px; font-size:11px;" value="${g.weights.pt}" onchange="updateWeight('pt', this.value)">%</span> 
+              <button style="background:white; border:none; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:700; cursor:pointer;" onclick="addCol('pt')">+add</button>
+            </th>
+            <th colspan="${g.cols.exam}" class="th-exam">
+              EXAMS 
+              <span style="background:white; border-radius:10px; padding:2px 5px; font-size:11px; margin:0 5px;"><input type="number" class="table-input" style="width:30px; padding:0; height:15px; font-size:11px;" value="${g.weights.exam}" onchange="updateWeight('exam', this.value)">%</span> 
+              <button style="background:white; border:none; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:700; cursor:pointer;" onclick="addCol('exam')">+add</button>
+            </th>
+            <th rowspan="2" class="sticky-col-right th-green" style="min-width:100px;">FINAL GRADE</th>
+        </tr>`;
+
+        // Row 2: Sub-columns and Max Scores
+        let r2 = `<tr>`;
+        ['quiz', 'pt', 'exam'].forEach(cat => {
+            for(let i=1; i<=g.cols[cat]; i++) {
+                let colId = `${cat}-${i}`;
+                let maxVal = g.maxScores[colId] || 100;
+                let label = cat === 'quiz' ? 'Q' : cat === 'pt' ? 'PT' : 'E';
+                r2 += `<th class="th-${cat}" style="font-size:16px;">${label}${i} <span style="background:#C4E8D4; border-radius:15px; padding:2px 10px; display:inline-block; margin-left:5px;"><input type="number" class="table-input" style="width:30px; padding:0; height:20px; font-size:16px; font-weight:800; color:var(--text-dark);" value="${maxVal}" onchange="updateMaxScore('${colId}', this.value)"></span></th>`;
+            }
+        });
+        r2 += `</tr>`;
+
+        thead.innerHTML = r1 + r2;
+        renderBody();
+    }
+
+    // Render Student Rows and Grade Inputs
+    function renderBody() {
+        const tbody = document.getElementById('gbBody');
+        const g = section.grades;
+        tbody.innerHTML = '';
+
+        section.students.forEach(s => {
+            const fullName = `${s.last.toUpperCase()}, ${s.first.toUpperCase()}`;
+            g.records[fullName] = g.records[fullName] || {};
+
+            let rHTML = `<tr><td class="sticky-col-left">${fullName}</td>`;
+
+            ['quiz', 'pt', 'exam'].forEach(cat => {
+                for(let i=1; i<=g.cols[cat]; i++) {
+                    let colId = `${cat}-${i}`;
+                    let score = g.records[fullName][colId] !== undefined ? g.records[fullName][colId] : '';
+                    // oninput updates the array without rebuilding the whole table so we don't lose typing focus
+                    rHTML += `<td><input type="number" class="table-input" value="${score}" oninput="updateScore('${fullName}', '${colId}', this.value)" style="width:100%;"></td>`;
+                }
+            });
+
+            rHTML += `<td class="sticky-col-right" id="final-${fullName.replace(/\s+/g, '-')}">-</td></tr>`;
+            tbody.innerHTML += rHTML;
+            
+            // Calculate initial grade on load
+            recalcStudent(fullName);
+        });
+    }
+
+    // Updates logic on individual cell type
+    function updateScore(name, colId, val) {
+        section.grades.records[name][colId] = val;
+        saveData();
+        recalcStudent(name);
+    }
+
+    function updateWeight(cat, val) {
+        section.grades.weights[cat] = parseFloat(val) || 0;
+        saveData();
+        renderBody(); // Re-render body to force recalculations
+    }
+
+    function updateMaxScore(colId, val) {
+        section.grades.maxScores[colId] = parseFloat(val) || 100;
+        saveData();
+        renderBody();
+    }
+
+    function addCol(cat) {
+        section.grades.cols[cat]++;
+        // Automatically give it a default max score of 50
+        section.grades.maxScores[`${cat}-${section.grades.cols[cat]}`] = 50; 
+        saveData();
+        renderGradebook();
+    }
+
+    // Math for calculating the final grade live
+    function recalcStudent(name) {
+        const g = section.grades;
+        let catTotals = { quiz: {s:0, m:0}, pt: {s:0, m:0}, exam: {s:0, m:0} };
+
+        ['quiz', 'pt', 'exam'].forEach(cat => {
+            for(let i=1; i<=g.cols[cat]; i++) {
+                let colId = `${cat}-${i}`;
+                let score = g.records[name][colId];
+                if (score !== undefined && score !== '') {
+                    catTotals[cat].s += parseFloat(score) || 0;
+                    catTotals[cat].m += parseFloat(g.maxScores[colId]) || 100;
+                }
+            }
+        });
+
+        let totalPct = 0;
+        let hasGrades = false;
+        
+        ['quiz', 'pt', 'exam'].forEach(cat => {
+            if (catTotals[cat].m > 0) {
+                hasGrades = true;
+                let catPct = (catTotals[cat].s / catTotals[cat].m) * 100;
+                totalPct += catPct * (g.weights[cat] / 100);
+            }
+        });
+
+        let finalG = hasGrades ? toPhGrade(totalPct) : "-";
+        
+        // Target just this cell to avoid re-rendering entire rows and losing input focus
+        const safeId = name.replace(/\s+/g, '-');
+        const finalEl = document.getElementById(`final-${safeId}`);
+        if (finalEl) {
+            finalEl.textContent = finalG;
+        }
+    }
+
+    renderGradebook();
+  </script>
+</body>
+</html>

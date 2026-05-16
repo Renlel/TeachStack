@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>TeachStack - Masterlist</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/png" href="Pixel-Art-Apple-5.png">
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div>
+      <div class="logo"><img src="TeachStack.svg" alt=""></div>
+      <a href="dashboard.html" class="nav-item">
+        <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg> Dashboard
+      </a>
+      <div class="nav-item active">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg> All Section
+      </div>
+      <div class="sub-nav" id="sidebarSubNav">
+      </div>
+    </div>
+    <button class="btn-logout" onclick="logout()"><svg viewBox="0 0 24 24" width="20"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg> Log Out</button>
+  </aside>
+
+  <main class="main-content fade-in">
+    <div class="top-header">
+      <a href="dashboard.html" class="back-link">&larr; Dashboard</a>
+      <h1 class="page-title ui-sec-name">SECTION NAME</h1>
+      <h2 class="page-subtitle ui-sub-code">SUBJECT CODE: SUBJECT NAME</h2>
+      <div class="enrollment-count"><svg viewBox="0 0 24 24" width="20" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> <span class="ui-enroll-count">0 Student Enrolled</span></div>
+      
+      <div class="tabs">
+        <a href="masterlist.html" class="tab active">Masterlist</a>
+        <a href="attendance.html" class="tab">Attendance</a>
+        <a href="gradebook.html" class="tab">Gradebook</a>
+        <a href="analytics.html" class="tab">Class Analytics</a>
+      </div>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+      <div>
+        <h3 style="color: var(--green); font-size: 24px; font-weight: 800;"><span class="ui-sec-name"></span> Master list</h3>
+        <p style="color: var(--text-gray); font-size: 14px;">List of enrolled student in this subject</p>
+      </div>
+      <button class="btn-primary" onclick="toggleModal('addStudentModal')">+ ADD STUDENT</button>
+    </div>
+
+    <div class="table-wrapper">
+      <table id="masterlistTable">
+        <thead>
+          <tr>
+            <th class="th-green">STUDENT NUMBER</th>
+            <th class="th-green">LAST NAME</th>
+            <th class="th-green">FIRST NAME</th>
+            <th class="th-green">STUDENT EMAIL</th>
+            <th class="th-green">ACTIONS</th>
+          </tr>
+        </thead>
+        <tbody id="studentTbody"></tbody>
+      </table>
+    </div>
+  </main>
+
+  <div class="modal-overlay" id="addStudentModal">
+    <div class="modal">
+      <button class="modal-close" onclick="toggleModal('addStudentModal')">X</button>
+      <h3 class="modal-title">ADD STUDENT TO <span class="ui-sec-name"></span></h3>
+      <div style="display: flex; gap: 15px;">
+        <div class="input-group" style="flex:1;"><label>Student Number</label><input type="text" id="stuNum"></div>
+        <div class="input-group" style="flex:1;"><label>Last Name</label><input type="text" id="stuLast"></div>
+        <div class="input-group" style="flex:1;"><label>First Name</label><input type="text" id="stuFirst"></div>
+      </div>
+      <div class="input-group"><label>Student Email</label><input type="email" id="stuEmail"></div>
+      <div style="text-align: center;"><button class="btn-primary" onclick="addStudent()">+ ADD STUDENT</button></div>
+    </div>
+  </div>
+  <div class="modal-overlay" id="reportCardModal">
+    <div class="modal" style="max-width: 450px;">
+      <button class="modal-close" onclick="toggleModal('reportCardModal')">X</button>
+      <h3 class="modal-title" style="margin-bottom: 5px; font-size: 16px; color: var(--text-gray);">STUDENT REPORT CARD</h3>
+      <h4 id="rcStudentName" style="text-align: center; color: var(--green); font-size: 24px; font-weight: 800; margin-bottom: 25px;">LASTNAME, FIRSTNAME</h4>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+          <div style="background: var(--light-green); padding: 20px; border-radius: 15px; text-align: center; border: 2px solid var(--green);">
+              <div style="font-size: 12px; font-weight: 800; color: var(--text-dark); margin-bottom: 10px;">CURRENT GRADE</div>
+              <div id="rcGrade" style="font-size: 36px; font-weight: 800; color: var(--green); line-height: 1;">1.00</div>
+          </div>
+          <div style="background: var(--light-orange); padding: 20px; border-radius: 15px; text-align: center; border: 2px solid var(--orange);">
+              <div style="font-size: 12px; font-weight: 800; color: var(--text-dark); margin-bottom: 10px;">ATTENDANCE</div>
+              <div id="rcAttendance" style="font-size: 36px; font-weight: 800; color: var(--orange); line-height: 1;">100%</div>
+          </div>
+      </div>
+
+      <div id="rcStatus" style="background: var(--green); color: white; text-align: center; padding: 15px; border-radius: 15px; font-weight: 800; font-size: 18px; letter-spacing: 1px;">
+          PASSING
+      </div>
+    </div>
+  </div>
+
+  <script src="store.js"></script>
+  <script>
+    const section = getCurrentSection();
+    
+    function renderTable() {
+        updateHeaderUI();
+        const tbody = document.getElementById('studentTbody');
+        tbody.innerHTML = '';
+        section.students.forEach((s, idx) => {
+            // Format name exactly how it's saved in Gradebook & Attendance arrays
+            const fullName = `${s.last.toUpperCase()}, ${s.first.toUpperCase()}`;
+            
+            tbody.innerHTML += `
+              <tr>
+                <td>${s.number}</td>
+                <td>${s.last.toUpperCase()}</td>
+                <td>${s.first.toUpperCase()}</td>
+                <td>${s.email}</td>
+                <td>
+                    <button class="btn-primary" style="padding: 4px 12px; font-size: 12px; margin-right: 15px;" onclick="openReportCard('${fullName}')">VIEW</button>
+                    <span style="color: red; cursor: pointer; font-size:18px;" onclick="delStudent(${idx})">🗑️</span>
+                </td>
+              </tr>`;
+        });
+    }
+
+    // --- NEW: REPORT CARD LOGIC ---
+    function openReportCard(fullName) {
+        document.getElementById('rcStudentName').textContent = fullName;
+
+        // 1. Calculate Grade
+        let grade = "-";
+        const g = section.grades;
+        if (g && g.weights) {
+            let catTotals = { quiz: {s:0, m:0}, pt: {s:0, m:0}, exam: {s:0, m:0} };
+            ['quiz', 'pt', 'exam'].forEach(cat => {
+                for(let i=1; i<=g.cols[cat]; i++) {
+                    let colId = `${cat}-${i}`;
+                    let score = g.records[fullName]?.[colId];
+                    if (score !== undefined && score !== '') {
+                        catTotals[cat].s += parseFloat(score) || 0;
+                        catTotals[cat].m += parseFloat(g.maxScores[colId]) || 100;
+                    }
+                }
+            });
+
+            let totalPct = 0;
+            let hasGrades = false;
+            ['quiz', 'pt', 'exam'].forEach(cat => {
+                if (catTotals[cat].m > 0) {
+                    hasGrades = true;
+                    let catPct = (catTotals[cat].s / catTotals[cat].m) * 100;
+                    totalPct += catPct * (g.weights[cat] / 100);
+                }
+            });
+
+            if (hasGrades) {
+                const gradeTable = [
+                    [96.7, 1.00], [93.4, 1.25], [90.1, 1.50],
+                    [86.7, 1.75], [83.4, 2.00], [80.1, 2.25],
+                    [76.7, 2.50], [73.4, 2.75], [70.0, 3.00],
+                    [0,    5.00]
+                ];
+                for (const [min, val] of gradeTable) {
+                    if (totalPct >= min) { grade = val.toFixed(2); break; }
+                }
+            }
+        }
+        document.getElementById('rcGrade').textContent = grade;
+
+        // 2. Calculate Attendance
+        let attPct = "-";
+        if (section.attendance && section.attendance.dates && section.attendance.dates.length > 0) {
+            let p=0, l=0, a=0;
+            section.attendance.dates.forEach(d => {
+                const stat = section.attendance.records[fullName]?.[d] || "present";
+                if(stat==="present") p++; else if(stat==="late") l++; else a++;
+            });
+            const total = p+l+a;
+            if (total > 0) attPct = Math.round(((p+l)/total) * 100) + "%";
+        }
+        document.getElementById('rcAttendance').textContent = attPct;
+
+        // 3. Update Status Box Colors
+        const statusBox = document.getElementById('rcStatus');
+        if (grade === "-") {
+            statusBox.textContent = "NO GRADE DATA";
+            statusBox.style.background = "var(--text-gray)";
+        } else if (parseFloat(grade) > 3.00) {
+            statusBox.textContent = "AT RISK (NEEDS INTERVENTION)";
+            statusBox.style.background = "#E11D48"; // TeachStack Red
+        } else {
+            statusBox.textContent = "PASSING";
+            statusBox.style.background = "var(--green)";
+        }
+
+        // Open the Modal
+        toggleModal('reportCardModal');
+    }
+
+    function addStudent() {
+        const num = document.getElementById('stuNum').value;
+        const last = document.getElementById('stuLast').value.trim();
+        const first = document.getElementById('stuFirst').value.trim();
+        const email = document.getElementById('stuEmail').value;
+        
+        if(!last || !first) return alert("Last Name and First Name are required");
+        
+        // Push the new student directly into the unified database
+        section.students.push({ number: num, last: last, first: first, email: email });
+        saveData(); // Save it to teachstack_data
+        
+        renderTable();
+        toggleModal('addStudentModal');
+        
+        // Clear inputs
+        document.querySelectorAll('#addStudentModal input').forEach(inpt => inpt.value = '');
+    }
+
+    function delStudent(idx) {
+        if(confirm("Remove student?")) {
+            section.students.splice(idx, 1);
+            saveData();
+            renderTable();
+        }
+    }
+
+    renderTable();
+  </script>
+</body>
+</html>

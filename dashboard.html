@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TeachStack - Dashboard</title>
+  <link rel="icon" type="image/png" href="Pixel-Art-Apple-5.png">
+  <link rel="stylesheet" href="styles.css">
+  
+  <style>
+    /* --- DASHBOARD SPECIFIC STYLES --- */
+    
+    /* Top Header Adjustments */
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+    .greeting {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+    .greeting span {
+      color: var(--green);
+    }
+    .btn-add-section {
+      background: var(--green);
+      color: white;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 25px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 14px;
+      transition: transform 0.2s;
+    }
+    .btn-add-section:hover {
+      transform: scale(1.05);
+    }
+
+    /* Top Stats Cards */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+    .stat-card {
+      border: 2px solid var(--green);
+      border-radius: 15px;
+      overflow: hidden;
+      background: white;
+      text-align: center;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    }
+    .stat-header {
+      background: var(--green);
+      color: white;
+      padding: 12px;
+      font-size: 16px;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+    .stat-body {
+      padding: 20px;
+    }
+    .stat-number {
+      font-size: 72px;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+    .text-orange { color: var(--orange); }
+    .text-red { color: #E11D48; }
+    .stat-subtext {
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    /* Section Area */
+    .sections-title {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--text-dark);
+      margin-bottom: 60px;
+      text-transform: uppercase;
+    }
+    
+    .sections-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 70px 20px;
+    }
+
+    /* Unique Section Card Design */
+    .section-card {
+      position: relative;
+      border: 2px solid var(--orange);
+      border-radius: 0px 15px 15px 15px;
+      height: 200px;
+      width: 350px;
+      background: white;
+      text-align: center;
+      padding: 40px 20px 20px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .section-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(244, 124, 32, 0.15);
+    }
+    .section-tab {
+      position: absolute;
+      top: -1px;
+      left: -2px; /* Align with left border */
+      background: var(--orange);
+      color: white;
+      padding: 10px 25px;
+      font-size: 18px;
+      font-weight: 800;
+      border-radius: 15px 15px 0 0;
+      transform: translateY(-100%);
+    }
+    .card-code {
+      font-size: 36px;
+      font-weight: 800;
+      color: var(--green);
+      line-height: 1;
+    }
+    .card-subject {
+      color: var(--orange);
+      font-size: 14px;
+      font-weight: 800;
+      margin-bottom: 20px;
+    }
+    .card-footer-stats {
+      font-size: 20px;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+    .card-footer-stats span.num { color: var(--green); }
+    .card-footer-stats span.text { color: var(--orange); }
+
+    /* Modals aligned with mockups */
+    .custom-modal {
+      background: white;
+      border: 4px solid var(--green);
+      border-radius: 24px;
+      padding: 30px 40px;
+      width: 90%;
+      max-width: 500px;
+      position: relative;
+      text-align: center;
+    }
+    .custom-modal-close {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text-dark);
+      cursor: pointer;
+      border: none;
+      background: transparent;
+    }
+    .modal-fieldset {
+      border: 1px solid #888;
+      border-radius: 8px;
+      padding: 0 15px;
+      margin-bottom: 15px;
+      width: 100%;
+      text-align: left;
+    }
+    .modal-legend {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--orange);
+      padding: 0 5px;
+    }
+    .modal-input {
+      border: none;
+      outline: none;
+      width: 100%;
+      padding: 10px 0;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+    
+    /* Confirmation Specifics */
+    .confirm-sec-name { font-size: 48px; font-weight: 800; color: var(--orange); line-height: 1; margin-top: 10px;}
+    .confirm-sub-code { font-size: 24px; font-weight: 800; color: var(--green); margin-bottom: 5px;}
+    .confirm-msg { font-size: 18px; font-weight: 700; color: #444; margin-bottom: 25px;}
+
+    /* Sidebar Dropdown List */
+    .sidebar-section-list {
+      margin-left: 36px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--text-gray);
+      margin-top: 10px;
+    }
+    .sidebar-section-list a {
+      color: inherit;
+      text-decoration: none;
+      transition: 0.2s;
+      cursor: pointer;
+    }
+    .sidebar-section-list a:hover {
+      color: var(--green);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div>
+      <div class="logo"><img src="TeachStack.svg" alt="TeachStack Logo"></div>
+      <a href="dashboard.html" class="nav-item active">
+        <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg> Dashboard
+      </a>
+      <div class="nav-item" style="cursor: default;">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg> All Section
+      </div>
+      <div class="sidebar-section-list" id="sidebarSections"></div>
+    </div>
+    <button class="btn-logout" onclick="logout()"><svg viewBox="0 0 24 24" width="20"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg> Log Out</button>
+  </aside>
+
+  <main class="main-content fade-in">
+    
+    <div class="dashboard-header">
+      <div class="greeting">Hello Teacher <span id="displayUsername">Username</span>!</div>
+      <button class="btn-add-section" onclick="toggleModal('addSectionModal')">ADD SECTION +</button>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-header">TOTAL<br>ENROLLED</div>
+        <div class="stat-body">
+          <div class="stat-number text-orange" id="gTotalEnrolled">0</div>
+          <div class="stat-subtext">STUDENTS ALL<br>SECTION/ SUBJECT</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-header">AVERAGE<br>PASSING RATE</div>
+        <div class="stat-body">
+          <div class="stat-number text-orange" id="gPassRate">0%</div>
+          <div class="stat-subtext">STUDENTS ALL<br>SECTION/ SUBJECT</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-header">AT RISK<br>STUDENTS</div>
+        <div class="stat-body">
+          <div class="stat-number text-red" id="gAtRisk">0</div>
+          <div class="stat-subtext">STUDENTS NEED<br>INTERVENTIONS</div>
+        </div>
+      </div>
+    </div>
+<hr>
+<br>
+    <h2 class="sections-title">SECTIONS</h2>
+    <div class="sections-grid" id="sectionsGrid">
+      </div>
+
+  </main>
+
+  <div class="modal-overlay" id="addSectionModal">
+    <div class="custom-modal">
+      <button class="custom-modal-close" onclick="toggleModal('addSectionModal')">X</button>
+      <h3 style="font-size: 22px; font-weight: 800; color: #444; margin-bottom: 25px;">ADD SECTION</h3>
+      
+      <fieldset class="modal-fieldset">
+        <legend class="modal-legend">SECTION NAME</legend>
+        <input type="text" id="newSecName" class="modal-input" placeholder="e.g. BSIT 1-7">
+      </fieldset>
+      
+      <fieldset class="modal-fieldset">
+        <legend class="modal-legend">SUBJECT CODE</legend>
+        <input type="text" id="newSubCode" class="modal-input" placeholder="e.g. ITEC 106">
+      </fieldset>
+      
+      <fieldset class="modal-fieldset">
+        <legend class="modal-legend">SUBJECT NAME</legend>
+        <input type="text" id="newSubName" class="modal-input" placeholder="e.g. Web Systems and Tech">
+      </fieldset>
+      
+      <button class="btn-add-section" style="margin-top: 10px;" onclick="submitNewSection()">ADD SECTION +</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="successModal">
+    <div class="custom-modal">
+      <button class="custom-modal-close" onclick="toggleModal('successModal')">X</button>
+      <div class="confirm-sec-name" id="confSecName">SECTION NAME</div>
+      <div class="confirm-sub-code" id="confSubCode">SUBJECT CODE: SUBJECT NAME</div>
+      <div class="confirm-msg">SUCCESSFULLY ADDED!</div>
+      <button class="btn-add-section" onclick="toggleModal('successModal')">OKAY</button>
+    </div>
+  </div>
+
+  <script src="store.js"></script>
+  <script>
+    // --- Auth Check ---
+    const currentUser = localStorage.getItem('teachstackCurrentUser');
+    if (!currentUser) {
+      window.location.href = 'index.html'; // Kick out if not logged in
+    } else {
+      document.getElementById('displayUsername').textContent = currentUser;
+    }
+
+    // --- Core Logic ported from analytics to calculate grades behind the scenes ---
+    function calculateStudentGrade(sectionObj, fullName) {
+        const g = sectionObj.grades;
+        if (!g || !g.weights) return null;
+
+        let catTotals = { quiz: {s:0, m:0}, pt: {s:0, m:0}, exam: {s:0, m:0} };
+
+        ['quiz', 'pt', 'exam'].forEach(cat => {
+            for(let i=1; i<=g.cols[cat]; i++) {
+                let colId = `${cat}-${i}`;
+                let score = g.records[fullName]?.[colId];
+                if (score !== undefined && score !== '') {
+                    catTotals[cat].s += parseFloat(score) || 0;
+                    catTotals[cat].m += parseFloat(g.maxScores[colId]) || 100;
+                }
+            }
+        });
+
+        let totalPct = 0;
+        let hasGrades = false;
+        
+        ['quiz', 'pt', 'exam'].forEach(cat => {
+            if (catTotals[cat].m > 0) {
+                hasGrades = true;
+                let catPct = (catTotals[cat].s / catTotals[cat].m) * 100;
+                totalPct += catPct * (g.weights[cat] / 100);
+            }
+        });
+
+        if (!hasGrades) return null;
+
+        const gradeTable = [
+            [96.7, 1.00], [93.4, 1.25], [90.1, 1.50],
+            [86.7, 1.75], [83.4, 2.00], [80.1, 2.25],
+            [76.7, 2.50], [73.4, 2.75], [70.0, 3.00],
+            [0,    5.00]
+        ];
+        for (const [min, grade] of gradeTable) { 
+            if (totalPct >= min) return grade; 
+        }
+        return 5.00;
+    }
+
+    function calculateSectionAttendance(sectionObj) {
+        if (!sectionObj.attendance || !sectionObj.attendance.dates || sectionObj.attendance.dates.length === 0 || sectionObj.students.length === 0) return 0;
+        
+        let totalP = 0, totalL = 0, totalRecords = 0;
+        
+        sectionObj.students.forEach(s => {
+            const fullName = `${(s.last||"").toUpperCase()}, ${(s.first||"").toUpperCase()}`;
+            sectionObj.attendance.dates.forEach(d => {
+                const stat = sectionObj.attendance.records[fullName]?.[d] || "present";
+                if(stat === "present") totalP++;
+                else if(stat === "late") totalL++;
+                totalRecords++;
+            });
+        });
+        
+        if (totalRecords === 0) return 0;
+        return Math.round(((totalP + totalL) / totalRecords) * 100);
+    }
+
+    // --- Render Dashboard ---
+    function renderDashboard() {
+      const grid = document.getElementById('sectionsGrid');
+      const sidebarList = document.getElementById('sidebarSections');
+      
+      grid.innerHTML = '';
+      sidebarList.innerHTML = '';
+
+      let globalEnrolled = 0;
+      let totalStudentsWithGrades = 0;
+      let passedStudents = 0;
+      let globalAtRisk = 0;
+
+      appData.sections.forEach(sec => {
+        // --- 1. Compute Data for this section ---
+        const stuCount = sec.students.length;
+        globalEnrolled += stuCount;
+        const attPct = calculateSectionAttendance(sec);
+        
+        sec.students.forEach(s => {
+            const fullName = `${(s.last||"").toUpperCase()}, ${(s.first||"").toUpperCase()}`;
+            const grade = calculateStudentGrade(sec, fullName);
+            if (grade !== null) {
+                totalStudentsWithGrades++;
+                if (grade <= 3.00) passedStudents++;
+                else globalAtRisk++;
+            }
+        });
+
+        // --- 2. Build Sidebar List ---
+        sidebarList.innerHTML += `<a onclick="navigateToSection('${sec.id}')">${sec.name}</a>`;
+
+        // --- 3. Build Section Card ---
+        grid.innerHTML += `
+          <div class="section-card" onclick="navigateToSection('${sec.id}')">
+            <div class="section-tab">${sec.name}</div>
+            <div class="card-code">${sec.code}</div>
+            <div class="card-subject">${sec.subject.toUpperCase()}</div>
+            <div class="card-footer-stats">
+              <div><span class="num">${stuCount}</span> <span class="text">Student${stuCount !== 1 ? 's' : ''}</span></div>
+              <div><span class="num">${attPct}%</span> <span class="text">Attendance</span></div>
+            </div>
+          </div>
+        `;
+      });
+
+      // --- 4. Update Global Top Cards ---
+      document.getElementById('gTotalEnrolled').textContent = globalEnrolled;
+      document.getElementById('gPassRate').textContent = totalStudentsWithGrades > 0 ? Math.round((passedStudents/totalStudentsWithGrades)*100) + '%' : '0%';
+      document.getElementById('gAtRisk').textContent = globalAtRisk;
+    }
+
+    // Navigation Bridge
+    function navigateToSection(secId) {
+        appData.currentSectionId = secId;
+        saveData();
+        window.location.href = 'masterlist.html';
+    }
+
+    // --- Add Section Logic ---
+    function submitNewSection() {
+        const sName = document.getElementById('newSecName').value.trim();
+        const sCode = document.getElementById('newSubCode').value.trim();
+        const sSubj = document.getElementById('newSubName').value.trim();
+
+        if (!sName || !sCode || !sSubj) {
+            alert("Please fill out all fields.");
+            return;
+        }
+
+        const newId = 'sec-' + Date.now();
+        const newSection = {
+            id: newId,
+            name: sName,
+            code: sCode,
+            subject: sSubj,
+            students: [],
+            attendance: { dates: [], records: {} },
+            grades: {
+                weights: { quiz: 10, pt: 50, exam: 40 },
+                cols: { quiz: 2, pt: 3, exam: 2 },
+                maxScores: { 'quiz-1': 15, 'quiz-2': 15, 'pt-1': 50, 'pt-2': 50, 'pt-3': 50, 'exam-1': 50, 'exam-2': 50 },
+                records: {}
+            }
+        };
+
+        appData.sections.push(newSection);
+        saveData();
+        renderDashboard();
+        
+        // Clean up inputs and swap modals
+        document.getElementById('newSecName').value = '';
+        document.getElementById('newSubCode').value = '';
+        document.getElementById('newSubName').value = '';
+        
+        toggleModal('addSectionModal');
+        
+        // Populate Success Modal
+        document.getElementById('confSecName').textContent = sName.toUpperCase();
+        document.getElementById('confSubCode').textContent = `${sCode.toUpperCase()}: ${sSubj.toUpperCase()}`;
+        toggleModal('successModal');
+    }
+
+    // Initialize Dashboard
+    renderDashboard();
+  </script>
+</body>
+</html>
